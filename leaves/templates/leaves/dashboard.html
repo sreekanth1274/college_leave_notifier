@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard | Leave-Notifier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root { --primary-purple: #764ba2; --bg-light: #f8f9fa; }
+        body { background-color: var(--bg-light); font-family: 'Inter', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-send-bulk { background: linear-gradient(to right, #ff4b2b, #ff416c); color: white; border: none; transition: 0.3s; font-weight: 600; }
+        .btn-send-bulk:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4); color: white; }
+        .table-container { background: white; border-radius: 12px; padding: 20px; }
+        .form-check-input:checked { background-color: var(--primary-purple); border-color: var(--primary-purple); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-white" href="#"><i class="bi bi-shield-check"></i> Leave-Notifier</a>
+        <div class="d-flex align-items-center">
+            <span class="me-3 text-white-50">Welcome, <strong>{{ request.user.username }}</strong></span>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row g-4">
+        
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <h4 class="mb-4 fw-bold text-dark"><i class="bi bi-person-plus"></i> Register Student</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Student Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Enter name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Parent Phone Number</label>
+                        <input type="text" name="parent_phone" class="form-control" placeholder="+91..." required>
+                        <small class="text-muted">Must include +91 prefix</small>
+                    </div>
+                    <button type="submit" name="add_student" class="btn btn-primary w-100 py-2 fw-bold" style="background: #764ba2; border:none;">
+                        Add to Database
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <form method="post" id="bulkSmsForm">
+                {% csrf_token %}
+                <div class="table-container shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h4 class="fw-bold text-dark mb-0"><i class="bi bi-people"></i> My Students</h4>
+                            <span class="text-muted small">Select students to send leave notifications</span>
+                        </div>
+                        <button type="submit" name="send_bulk_sms" class="btn btn-send-bulk rounded-pill px-4">
+                            <i class="bi bi-chat-left-dots-fill"></i> Send Bulk SMS
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="40px">
+                                        <input class="form-check-input" type="checkbox" id="selectAll">
+                                    </th>
+                                    <th>Name</th>
+                                    <th>Parent Phone</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>
+                                        <input class="form-check-input student-checkbox" type="checkbox" name="selected_students" value="{{ student.id }}">
+                                    </td>
+                                    <td class="fw-bold text-secondary">{{ student.name }}</td>
+                                    <td><code>{{ student.parent_phone }}</code></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border">Ready</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox-fill d-block fs-1"></i>
+                                        No students registered yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Logic to select/deselect all checkboxes
+    document.getElementById('selectAll').onclick = function() {
+        var checkboxes = document.getElementsByClassName('student-checkbox');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    }
+
+    // Optional: Alert if no one is selected
+    document.getElementById('bulkSmsForm').onsubmit = function(e) {
+        if (e.submitter.name === 'send_bulk_sms') {
+            var checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+            if (checkedCount === 0) {
+                alert('Please select at least one student!');
+                return false;
+            }
+            return confirm('Send SMS to ' + checkedCount + ' selected students?');
+        }
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
