@@ -25,7 +25,21 @@ SECRET_KEY = 'django-insecure-bl8c-r=7i1^$!=0-8z-(90_zrx%16#%3(qqh&&)q0bu9^ud(bo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    # settings.py
+
+# Add your specific render domain here
+'college-leave-notifier.onrender.com', 'localhost', '127.0.0.1'
+]
+import os
+
+# This checks if the Render variable exists
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
