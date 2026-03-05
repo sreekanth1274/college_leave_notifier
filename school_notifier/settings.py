@@ -84,6 +84,7 @@ TEMPLATES = [
     },
 ]
 
+# settings.py
 WSGI_APPLICATION = 'school_notifier.wsgi.application'
 
 
