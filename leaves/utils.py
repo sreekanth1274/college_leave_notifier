@@ -1,8 +1,10 @@
 from twilio.rest import Client  # <--- Added this import
-
+import os
 def send_leave_sms(receiver_number, student_name):
-    account_sid = 'ACc17dd3ab5aa9ad34cb44a6f7814ef44c' 
-    auth_token = '957ce5eed0fce12ed90b9bf10d60d530'   
+    # account_sid = 'ACc17dd3ab5aa9ad34cb44a6f7814ef44c' 
+    # auth_token = '957ce5eed0fce12ed90b9bf10d60d530'   
+    account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+    auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
     twilio_number = '+18703374991' 
 
     try:
